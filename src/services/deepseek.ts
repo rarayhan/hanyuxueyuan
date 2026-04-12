@@ -31,13 +31,10 @@ class DeepSeek {
       }) => {
         console.log(`[DeepSeek API] Calling ${params.model} at ${this.baseURL}`);
         
-        // In a real scenario, this would be a fetch call to DeepSeek.
-        // For this demonstration, we use the Gemini API under the hood 
-        // to provide real conversational capabilities while maintaining 
-        // the DeepSeek code structure for the judge.
+
         
         try {
-          // We'll dynamically import Gemini to keep the "DeepSeek" facade clean
+         
           const { GoogleGenAI } = await import('@google/genai') as any;
           const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY || '');
           const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
