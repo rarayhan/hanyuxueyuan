@@ -1,0 +1,106 @@
+{
+  "nav": {
+    "home": "首页",
+    "study": "学习",
+    "vocabulary": "词汇",
+    "mock": "模拟",
+    "games": "游戏",
+    "profile": "个人",
+    "hub": "中心"
+  },
+  "dashboard": {
+    "greeting": "你好, 学者.",
+    "ready": "准备好学习中文了吗？",
+    "startLearning": "开始学习",
+    "viewStatus": "查看状态",
+    "dailyWisdom": "每日智慧",
+    "streak": "连续天数",
+    "days": "天",
+    "leaderboard": "排行榜",
+    "achievements": "成就",
+    "courseLibrary": "课程库",
+    "todaysChallenge": "今日挑战",
+    "viewAll": "查看全部",
+    "level": "等级",
+    "badgesUnlocked": "已解锁徽章",
+    "baozi": "包子",
+    "skills": {
+      "listening": "听力",
+      "speaking": "口语",
+      "reading": "阅读",
+      "writing": "写作"
+    }
+  },
+  "study": {
+    "title": "学习中心",
+    "subtitle": "选择您的等级并开始旅程。",
+    "beginner": "初级",
+    "elementary": "基础级",
+    "intermediate": "中级",
+    "upperIntermediate": "中高级",
+    "lessons": "课程",
+    "words": "词汇",
+    "grammar": "语法"
+  },
+  "profile": {
+    "title": "学者资料",
+    "master": "汉字大师",
+    "xpProgress": "经验进度",
+    "currentStreak": "当前连续天数",
+    "totalXp": "总经验",
+    "wordsLearned": "已学词汇",
+    "recentAchievements": "近期成就",
+    "dailyProgress": "每日进度"
+  },
+  "games": {
+    "title": "游戏阁",
+    "description": "在游戏中掌握中文。",
+    "tonePop": "声调气球",
+    "radicalReactor": "部首反应堆",
+    "sentenceSushi": "句子寿司",
+    "inkSprint": "水墨冲刺",
+    "start": "开始游戏",
+    "back": "返回",
+    "gameOver": "游戏结束！",
+    "points": "分数",
+    "collect": "领取奖励"
+  },
+  "common": {
+    "back": "返回",
+    "complete": "完成",
+    "loading": "加载中...",
+    "error": "错误",
+    "comingSoon": "即将推出",
+    "start": "开始"
+  },
+  "mock": {
+    "title": "HSK 模拟考试",
+    "subtitle": "模拟真实考试体验并测试您的水平。",
+    "start": "开始模拟考试",
+    "instructions": "考试说明",
+    "instructionsDesc": "模拟考试遵循 HSK 官方结构，包括听力、阅读和写作部分。在开始之前，请确保您处于安静的环境中并拥有稳定的网络连接。",
+    "questions": "题目"
+  },
+  "leaderboard": {
+    "title": "学者排行榜",
+    "subtitle": "Hanzi Scholar 社区中的顶尖学习者。",
+    "weekly": "每周排行榜",
+    "resets": "2天后重置",
+    "yourRank": "您的当前排名",
+    "topPercent": "您处于前 15% 的学习者中！"
+  },
+  "achievements": {
+    "title": "您的成就",
+    "subtitle": "您通往大师之路的里程碑。",
+    "unlocked": "已解锁",
+    "locked": "未解锁",
+    "list": {
+      "first_steps": { "title": "初步", "desc": "学习您的前10个词汇。" },
+      "streak_3": { "title": "持之以恒", "desc": "保持3天连续学习。" },
+      "hsk1_master": { "title": "HSK 1 大师", "desc": "完成所有 HSK 1 课程。" },
+      "speed_demon": { "title": "速度达人", "desc": "在水墨冲刺中获得100分以上。" },
+      "perfect_score": { "title": "完美和谐", "desc": "在测验中获得100%的准确率。" },
+      "scholar_level_5": { "title": "新锐学者", "desc": "达到学者等级5。" }
+    }
+  }
+}

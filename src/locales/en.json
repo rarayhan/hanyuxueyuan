@@ -1,0 +1,106 @@
+{
+  "nav": {
+    "home": "Home",
+    "study": "Study",
+    "vocabulary": "Vocabulary",
+    "mock": "Mock",
+    "games": "Games",
+    "profile": "Profile",
+    "hub": "The Hub"
+  },
+  "dashboard": {
+    "greeting": "你好, Scholar.",
+    "ready": "Ready for some Chinese?",
+    "startLearning": "START LEARNING",
+    "viewStatus": "VIEW STATUS",
+    "dailyWisdom": "Daily Wisdom",
+    "streak": "STREAK",
+    "days": "DAYS",
+    "leaderboard": "Leaderboard",
+    "achievements": "Achievements",
+    "courseLibrary": "Course Library",
+    "todaysChallenge": "Today's Challenge",
+    "viewAll": "View All",
+    "level": "Level",
+    "badgesUnlocked": "Badges Unlocked",
+    "baozi": "Baozi",
+    "skills": {
+      "listening": "Listening",
+      "speaking": "Speaking",
+      "reading": "Reading",
+      "writing": "Writing"
+    }
+  },
+  "study": {
+    "title": "Study Center",
+    "subtitle": "Choose your level and start your journey.",
+    "beginner": "Beginner Level",
+    "elementary": "Elementary Level",
+    "intermediate": "Intermediate Level",
+    "upperIntermediate": "Upper-Intermediate Level",
+    "lessons": "Lessons",
+    "words": "Words",
+    "grammar": "Grammar"
+  },
+  "profile": {
+    "title": "Scholar Profile",
+    "master": "Hanzi Master",
+    "xpProgress": "XP Progress",
+    "currentStreak": "Current Streak",
+    "totalXp": "Total XP",
+    "wordsLearned": "Words Learned",
+    "recentAchievements": "Recent Achievements",
+    "dailyProgress": "Daily Progress"
+  },
+  "games": {
+    "title": "Game Pavilion",
+    "description": "Master Chinese through play.",
+    "tonePop": "Tone Pop",
+    "radicalReactor": "Radical Reactor",
+    "sentenceSushi": "Sentence Sushi",
+    "inkSprint": "Ink Sprint",
+    "start": "START GAME",
+    "back": "BACK",
+    "gameOver": "Game Over!",
+    "points": "Points",
+    "collect": "COLLECT REWARDS"
+  },
+  "common": {
+    "back": "Back",
+    "complete": "Complete",
+    "loading": "Loading...",
+    "error": "Error",
+    "comingSoon": "Coming Soon",
+    "start": "Start"
+  },
+  "mock": {
+    "title": "HSK Mock Tests",
+    "subtitle": "Simulate the real exam experience and test your level.",
+    "start": "START MOCK TEST",
+    "instructions": "Exam Instructions",
+    "instructionsDesc": "The mock test follows the official HSK structure, including Listening, Reading, and Writing sections. Make sure you are in a quiet environment and have a stable internet connection before starting.",
+    "questions": "Questions"
+  },
+  "leaderboard": {
+    "title": "Scholar's Rankings",
+    "subtitle": "Top learners in the Hanzi Scholar community.",
+    "weekly": "Weekly Leaderboard",
+    "resets": "Resets in 2 days",
+    "yourRank": "Your Current Rank",
+    "topPercent": "You are in the top 15% of learners!"
+  },
+  "achievements": {
+    "title": "Your Achievements",
+    "subtitle": "Milestones on your path to mastery.",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "list": {
+      "first_steps": { "title": "First Steps", "desc": "Learn your first 10 words." },
+      "streak_3": { "title": "Consistent", "desc": "Maintain a 3-day streak." },
+      "hsk1_master": { "title": "HSK 1 Master", "desc": "Complete all HSK 1 lessons." },
+      "speed_demon": { "title": "Speed Demon", "desc": "Score 100+ in Ink Sprint." },
+      "perfect_score": { "title": "Perfect Harmony", "desc": "Get 100% accuracy in a quiz." },
+      "scholar_level_5": { "title": "Rising Scholar", "desc": "Reach Scholar Level 5." }
+    }
+  }
+}

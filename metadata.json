@@ -1,0 +1,7 @@
+{
+  "name": "Remix: The Scholar\u0027s Path",
+  "description": "A gamified HSK learning platform for HSK 1 \u0026 2 with interactive games, AI speaking partner, and a unified progress system.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
