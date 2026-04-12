@@ -33,7 +33,7 @@ export default function AISpeakingPartner() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string, pinyin?: string }[]>([
-    { role: 'ai', text: '你好！我是你的中文口语伙伴。你想聊点什么？', pinyin: 'Nǐ hǎo! Wǒ shì nǐ de Zhōngwén kǒuyǔ huǒbàn. Nǐ xiǎng liáo diǎn shénme?' }
+    { role: 'ai', text: '你好！我是你的中文练习伙伴。你想聊什么？', pinyin: 'Nǐ hǎo! Wǒ shì nǐ de zhōngwén liànxí huǒbàn. Nǐ xiǎng liáo shénme?' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
@@ -104,7 +104,7 @@ export default function AISpeakingPartner() {
     setTranscript('');
 
     try {
-      const chatMessages = [
+        const chatMessages = [
         { 
           role: 'system' as const, 
           content: 'You are a friendly Chinese speaking partner for an HSK 1-2 level student. Keep your responses short, simple, and encouraging. Always provide the Chinese characters followed by Pinyin in parentheses.' 

@@ -165,8 +165,7 @@ export const HSK_1_WORDS: Vocabulary[] = [
   { id: 'h1-148', character: '昨天', pinyin: 'zuótiān', meaning: 'yesterday', level: 1, examples: [{ sentence: '昨天是星期四。', translation: 'Yesterday was Thursday.' }] },
   { id: 'h1-149', character: '坐', pinyin: 'zuò', meaning: 'sit', level: 1, examples: [{ sentence: '请坐。', translation: 'Please sit down.' }] },
   { id: 'h1-150', character: '做', pinyin: 'zuò', meaning: 'do, make', level: 1, examples: [{ sentence: '你在做什么？', translation: 'What are you doing?' }] }
-]
-;
+];
 
 export const HSK_2_WORDS: Vocabulary[] = [
   { id: 'h2-1', character: '吧', pinyin: 'ba', meaning: 'particle', level: 2, examples: [{ sentence: '我们走吧。', translation: "Let's go." }] },
@@ -317,7 +316,7 @@ export const HSK_2_WORDS: Vocabulary[] = [
   { id: 'h2-147', character: '要', pinyin: 'yào', meaning: 'want', level: 2 },
   { id: 'h2-148', character: '也', pinyin: 'yě', meaning: 'also', level: 2 },
   { id: 'h2-149', character: '一下', pinyin: 'yíxià', meaning: 'a bit', level: 2 },
-  { id: 'h2-150', character: '一起', pinyin: 'yìqǐ', meaning: 'together', level: 2 },
+  { id: 'h2-150', character: '一起', pinyin: 'yìqǐ', meaning: 'together', level: 2 }
 ];
 
 export const HSK_3_WORDS: Vocabulary[] = [
@@ -618,7 +617,7 @@ export const HSK_3_WORDS: Vocabulary[] = [
   { id: 'h3-297', character: '座', pinyin: 'zuò', meaning: 'measure word (buildings, mountains)', level: 3 },
   { id: 'h3-298', character: '最后', pinyin: 'zuìhòu', meaning: 'last', level: 3 },
   { id: 'h3-299', character: '最好', pinyin: 'zuìhǎo', meaning: 'best', level: 3 },
-  { id: 'h3-300', character: '左右', pinyin: 'zuǒyòu', meaning: 'around', level: 3 },
+  { id: 'h3-300', character: '左右', pinyin: 'zuǒyòu', meaning: 'around', level: 3 }
 ];
 
 export const HSK_4_WORDS: Vocabulary[] = [
@@ -631,7 +630,7 @@ export const HSK_4_WORDS: Vocabulary[] = [
   { id: 'h4-7', character: '棒', pinyin: 'bàng', meaning: 'excellent', level: 4, examples: [{ sentence: '你的汉语说得真棒！', translation: 'Your Chinese is really excellent!' }] },
   { id: 'h4-8', character: '包子', pinyin: 'bāozi', meaning: 'steamed bun', level: 4, examples: [{ sentence: '我早餐吃了一个包子。', translation: 'I ate a steamed bun for breakfast.' }] },
   { id: 'h4-9', character: '保护', pinyin: 'bǎohù', meaning: 'protect', level: 4, examples: [{ sentence: '我们要保护环境。', translation: 'We must protect the environment.' }] },
-  { id: 'h4-10', character: '保证', pinyin: 'bǎozhèng', meaning: 'guarantee', level: 4, examples: [{ sentence: '我保证明天准时到。', translation: 'I guarantee I will be there on time tomorrow.' }] },
+  { id: 'h4-10', character: '保证', pinyin: 'bǎozhèng', meaning: 'guarantee', level: 4, examples: [{ sentence: '我保证明天准时到。', translation: 'I guarantee I will be there on time tomorrow.' }] }
 ];
 
 export const ALL_WORDS = [...HSK_1_WORDS, ...HSK_2_WORDS, ...HSK_3_WORDS, ...HSK_4_WORDS];
@@ -667,10 +666,10 @@ export const LESSONS: Lesson[] = [
       }
     ]
   },
-  { id: 2, level: 1, name: '你好吗？(How are you?)', wordIds: HSK_1_WORDS.slice(10, 20).map(w => w.id) },
-  { id: 3, level: 1, name: '谢谢你 (Thank you)', wordIds: HSK_1_WORDS.slice(20, 30).map(w => w.id) },
+  { id: 2, level: 1, name: '谢谢你 (Thank you)', wordIds: HSK_1_WORDS.slice(10, 20).map(w => w.id) },
+  { id: 3, level: 1, name: '你叫什么名字？(What is your name?)', wordIds: HSK_1_WORDS.slice(20, 30).map(w => w.id) },
   { id: 4, level: 1, name: '她是我的汉语老师 (She is my Chinese teacher)', wordIds: HSK_1_WORDS.slice(30, 40).map(w => w.id) },
-  { id: 5, level: 1, name: '她女儿今年二十岁 (Her daughter is 20 years old)', wordIds: HSK_1_WORDS.slice(40, 50).map(w => w.id) },
+  { id: 5, level: 1, name: '她女儿今年二十岁 (Her daughter is 20 years old this year)', wordIds: HSK_1_WORDS.slice(40, 50).map(w => w.id) },
   { id: 6, level: 1, name: '我会说汉语 (I can speak Chinese)', wordIds: HSK_1_WORDS.slice(50, 60).map(w => w.id) },
   { id: 7, level: 1, name: '今天几号？(What date is today?)', wordIds: HSK_1_WORDS.slice(60, 70).map(w => w.id) },
   { id: 8, level: 1, name: '我想喝茶 (I want to drink tea)', wordIds: HSK_1_WORDS.slice(70, 80).map(w => w.id) },

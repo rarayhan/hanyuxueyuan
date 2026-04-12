@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Play, BarChart2, Flame, BookOpen, Target, Gamepad2, Quote, Trophy, Award, ChevronRight, Zap, Medal, GraduationCap } from 'lucide-react';
-import { UserProgress } from '../types';
+import { Play, BarChart2, Flame, BookOpen, Target, Gamepad2, Quote, Trophy, Award, ChevronRight, Zap, Medal, GraduationCap, Landmark } from 'lucide-react';
+import { UserProgress, Lesson } from '../types';
 import { CHINESE_QUOTES } from '../data/hsk_data';
+import { SINOLOGY_MODULES } from '../data/sinology_data';
 import { cn } from '../lib/utils';
 import { Check } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import LessonReader from './LessonReader';
 
 interface DashboardProps {
   progress: UserProgress;
@@ -16,11 +19,6 @@ interface DashboardProps {
   onViewAchievements: () => void;
 }
 
-import { useLanguage } from '../contexts/LanguageContext';
-
-import DashboardMap from './DashboardMap';
-import { Lesson } from '../types';
-
 export default function Dashboard({ 
   progress, 
   onStartLearning, 
@@ -31,8 +29,11 @@ export default function Dashboard({
   onViewAchievements
 }: DashboardProps) {
   const { showPinyin, t } = useLanguage();
-  const [mapLevel, setMapLevel] = React.useState(1);
+  const [selectedSinologyLesson, setSelectedSinologyLesson] = useState<string | null>(null);
+  const [selectedModuleId, setSelectedModuleId] = useState<string>('basic');
   const randomQuote = CHINESE_QUOTES[Math.floor(Math.random() * CHINESE_QUOTES.length)];
+
+  const activeModule = SINOLOGY_MODULES.find(m => m.id === selectedModuleId);
 
   return (
     <div className="space-y-12 pb-20">
@@ -72,37 +73,78 @@ export default function Dashboard({
         </div>
       </section>
 
-      {/* Dashboard Map */}
+      {/* Sinology Curriculum */}
       <section className="space-y-8">
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-jade rounded-xl flex items-center justify-center text-white shadow-lg">
-              <GraduationCap size={20} />
+              <Landmark size={20} />
             </div>
-            <h3 className="text-3xl font-serif font-bold">{t.nav.home} Map</h3>
+            <h3 className="text-3xl font-serif font-bold">Sinology Architecture</h3>
           </div>
-          <div className="flex bg-white p-1 rounded-2xl border border-ink/10 shadow-sm">
-            {[1, 2, 3, 4].map(lvl => (
-              <button
-                key={lvl}
-                onClick={() => setMapLevel(lvl)}
-                className={cn(
-                  "px-8 py-2.5 rounded-xl font-bold text-sm transition-all",
-                  mapLevel === lvl ? "bg-cinnabar text-white shadow-lg" : "text-ink/40 hover:text-ink"
-                )}
-              >
-                HSK {lvl}
-              </button>
-            ))}
-          </div>
+          
+          {!selectedSinologyLesson && (
+            <div className="flex bg-white p-1 rounded-2xl border border-ink/10 shadow-sm overflow-x-auto">
+              {SINOLOGY_MODULES.map((module) => (
+                <button
+                  key={module.id}
+                  onClick={() => setSelectedModuleId(module.id)}
+                  className={cn(
+                    "px-6 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
+                    selectedModuleId === module.id ? "bg-cinnabar text-white shadow-lg" : "text-ink/40 hover:text-ink"
+                  )}
+                >
+                  {module.title.split(':')[0]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="bg-white rounded-[4rem] border border-ink/10 shadow-2xl shadow-ink/5 overflow-hidden">
-          <DashboardMap 
-            level={mapLevel} 
-            onSelectLesson={onSelectLesson} 
-            completedLessonIds={progress.completedLessons}
+        
+        {selectedSinologyLesson ? (
+          <LessonReader 
+            lesson={SINOLOGY_MODULES.flatMap(m => m.lessons).find(l => l.id === selectedSinologyLesson)!} 
+            onBack={() => setSelectedSinologyLesson(null)} 
           />
-        </div>
+        ) : (
+          <div className="bg-white rounded-[3rem] p-8 border border-ink/10 shadow-xl relative overflow-hidden">
+            <div 
+              className="absolute inset-0 z-0 opacity-10 bg-cover bg-center mix-blend-multiply pointer-events-none"
+              style={{ backgroundImage: `url(https://storage.googleapis.com/aistudio-user-content/0-1711079143-20260412_090022_0.png)` }}
+            />
+            {activeModule && (
+              <div className="relative z-10">
+                <div className="mb-8 text-center max-w-2xl mx-auto">
+                  <h4 className="text-3xl font-serif font-bold text-ink mb-4">{activeModule.title}</h4>
+                  <p className="text-lg text-ink/60">{activeModule.description}</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {activeModule.lessons.map(lesson => (
+                    <button 
+                      key={lesson.id} 
+                      onClick={() => setSelectedSinologyLesson(lesson.id)}
+                      className="text-left p-8 rounded-3xl border border-ink/10 hover:border-cinnabar hover:shadow-xl transition-all group bg-white/80 backdrop-blur-sm flex flex-col h-full relative overflow-hidden"
+                    >
+                      {lesson.imageUrl && (
+                        <div 
+                          className="absolute inset-0 z-0 opacity-30 group-hover:opacity-50 transition-opacity bg-cover bg-center mix-blend-multiply"
+                          style={{ backgroundImage: `url(${lesson.imageUrl})` }}
+                        />
+                      )}
+                      <div className="relative z-10">
+                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-cinnabar mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                          <BookOpen size={24} />
+                        </div>
+                        <h5 className="text-xl font-bold text-ink group-hover:text-cinnabar mb-3">{lesson.title}</h5>
+                        <p className="text-base text-ink/60 line-clamp-3">{lesson.description}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Motivation & Quote */}

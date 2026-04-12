@@ -77,7 +77,7 @@ export default function StudyView({ onSelectLesson }: StudyViewProps) {
               <div className="flex items-center gap-3 px-4">
                 <Compass className="text-gold" size={20} />
                 <h4 className="text-xl font-serif font-bold text-ink/60">
-                  {t.common?.unit || 'Unit'} {unit}
+                  Unit {unit}
                 </h4>
                 <div className="h-px bg-ink/5 flex-1" />
               </div>

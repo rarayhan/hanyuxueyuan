@@ -33,9 +33,12 @@ export default function DashboardMap({ level, onSelectLesson, completedLessonIds
   return (
     <div className="relative py-12 px-4 overflow-x-auto">
       <div className="flex flex-col items-center gap-12 min-w-[800px]">
+        
         <div className="flex items-center gap-4 mb-8">
           <div className="h-px bg-ink/10 w-24" />
-          <h3 className="text-3xl font-serif text-ink/40 uppercase tracking-widest">HSK {level} {t.dashboard.level}</h3>
+          <h3 className="text-3xl font-serif text-ink/40 uppercase tracking-widest">
+            HSK {level} {t.dashboard.level}
+          </h3>
           <div className="h-px bg-ink/10 w-24" />
         </div>
 
@@ -61,7 +64,7 @@ export default function DashboardMap({ level, onSelectLesson, completedLessonIds
                     <div className="flex items-center gap-2 bg-gold/10 px-6 py-2 rounded-full border border-gold/20">
                       <Compass className="text-gold" size={16} />
                       <span className="text-gold font-bold uppercase tracking-[0.2em] text-sm">
-                        {t.common?.unit || 'Unit'} {item.number}
+                        Unit {item.number}
                       </span>
                     </div>
                     <div className="h-px bg-gold/20 flex-1" />

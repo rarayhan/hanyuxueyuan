@@ -274,7 +274,7 @@ export default function VocabularyPractice() {
                     {currentWord.examples?.map((ex, i) => (
                       <div key={i} className="bg-silk/30 p-6 rounded-2xl border border-ink/5 space-y-2 group hover:border-cinnabar/20 transition-all">
                         <div className="text-xl font-chinese text-ink">{ex.sentence}</div>
-                        {showPinyin && <div className="text-cinnabar font-bold text-sm">{ex.pinyin}</div>}
+                        {showPinyin && <div className="text-cinnabar font-bold text-sm">{(ex as any).pinyin}</div>}
                         <div className="text-ink/50 italic font-serif">"{ex.translation}"</div>
                       </div>
                     )) || (

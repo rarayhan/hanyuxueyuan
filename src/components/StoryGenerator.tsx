@@ -9,6 +9,7 @@ export default function StoryGenerator() {
   const { showPinyin, t } = useLanguage();
   const [vocab, setVocab] = useState('');
   const [theme, setTheme] = useState('');
+  const [difficulty, setDifficulty] = useState('Basic');
   const [story, setStory] = useState<{ chinese: string; pinyin: string; english: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExplaining, setIsExplaining] = useState(false);
@@ -22,9 +23,14 @@ export default function StoryGenerator() {
     setError(null);
     
     try {
-      const prompt = `Create a short, engaging story in Chinese (Simplified) for an HSK 1-2 learner. 
+      const prompt = `Create a short, engaging reading comprehension story in Chinese (Simplified) for a Sinology Architecture curriculum.
+      DIFFICULTY LEVEL: ${difficulty}
+      MANDATORY THEME: "Achievements of Ancient Chinese Architecture" (中国古代建筑成就).
+      ALLOWED SUBJECTS: Civil residences (民居), government offices (官府), imperial palaces (皇宫), and bridges (桥梁).
+      STRICTLY FORBIDDEN: Do NOT include any references to temples (庙宇) or pagodas (宝塔).
+      TIMEFRAME: All historical context must be strictly from before the year 1911.
       MUST use these vocabulary words naturally: ${vocab}
-      Theme: ${theme || 'daily life'}
+      User requested sub-theme: ${theme || 'ancient architecture'}
       Length: 5-8 sentences.
       Format the response as a JSON object with keys: "chinese", "pinyin", "english". 
       The "chinese" should be the story in characters, "pinyin" the pinyin for the whole story, and "english" the translation.`;
@@ -105,6 +111,18 @@ export default function StoryGenerator() {
                 placeholder="e.g. A day at the park"
                 className="w-full bg-silk rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-cinnabar/20 border border-ink/5"
               />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold uppercase tracking-widest text-ink/40">Difficulty Level</label>
+              <select 
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+                className="w-full bg-silk rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-cinnabar/20 border border-ink/5"
+              >
+                <option value="Basic">Basic</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Expert">Expert</option>
+              </select>
             </div>
             <button 
               onClick={generateStory}
