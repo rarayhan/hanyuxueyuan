@@ -82,7 +82,7 @@ export default function Dashboard({
             <h3 className="text-3xl font-serif font-bold">{t.nav.home} Map</h3>
           </div>
           <div className="flex bg-white p-1 rounded-2xl border border-ink/10 shadow-sm">
-            {[1, 2].map(lvl => (
+            {[1, 2, 3, 4].map(lvl => (
               <button
                 key={lvl}
                 onClick={() => setMapLevel(lvl)}

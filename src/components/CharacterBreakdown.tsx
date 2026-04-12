@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { PenTool, Search, Sparkles, Loader2, Info } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import deepseekClient from '../services/deepseek';
+import WritingCanvas from './WritingCanvas';
+import { OFFLINE_ANALYSIS_DATA } from '../data/offline_analysis';
+import ReactMarkdown from 'react-markdown';
 
 export default function CharacterBreakdown() {
   const [input, setInput] = useState('');
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const analyzeCharacter = async (char?: string) => {
     const target = char || input;
@@ -14,9 +18,16 @@ export default function CharacterBreakdown() {
     
     setIsLoading(true);
     setInput(target);
+    setError(null);
+    
+    // Check if we have offline data for this character first
+    if (OFFLINE_ANALYSIS_DATA[target]) {
+      setAnalysis(OFFLINE_ANALYSIS_DATA[target]);
+      setIsLoading(false);
+      return;
+    }
     
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
       const prompt = `Analyze the Chinese character(s) "${target}" for an HSK 1-2 learner.
       Include:
       1. Meaning & Pinyin
@@ -26,14 +37,16 @@ export default function CharacterBreakdown() {
       5. 2-3 common example words.
       Keep it educational, clear, and encouraging. Use Markdown formatting.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
+      const completion = await deepseekClient.chat.completions.create({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
       });
 
-      setAnalysis(response.text || '');
-    } catch (error) {
-      console.error('Character analysis error', error);
+      setAnalysis(completion.choices[0].message.content || '');
+    } catch (err: any) {
+      console.error('Character analysis error', err);
+      setError(err.message || 'Failed to connect to the AI. Please check your API key or try an offline character.');
+      setAnalysis("Sorry, I couldn't connect to the AI to analyze this character. Please try one of the 'Quick Try' characters below which work offline!");
     } finally {
       setIsLoading(false);
     }
@@ -78,6 +91,12 @@ export default function CharacterBreakdown() {
               {isLoading ? <Loader2 className="animate-spin" /> : <Search size={24} />}
             </button>
           </div>
+          
+          {error && (
+            <div className="p-4 bg-cinnabar/10 text-cinnabar rounded-xl border border-cinnabar/20 text-sm font-medium mt-4">
+              {error}
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-3">
             <span className="text-xs font-bold uppercase tracking-widest text-ink/20 py-2">Quick Try:</span>
@@ -101,9 +120,7 @@ export default function CharacterBreakdown() {
             className="card-scholar space-y-8"
           >
             <div className="flex flex-col items-center justify-center py-12 bg-silk/50 rounded-[2.5rem] border border-ink/5">
-              <div className="text-9xl font-chinese text-cinnabar mb-4 drop-shadow-sm">
-                {input}
-              </div>
+              <WritingCanvas character={input} className="mb-8" />
               <div className="flex items-center gap-2 text-ink/20">
                 <Info size={16} />
                 <span className="text-xs font-bold uppercase tracking-widest">Deep Analysis</span>
@@ -111,8 +128,8 @@ export default function CharacterBreakdown() {
             </div>
 
             <div className="prose prose-ink max-w-none space-y-6">
-              <div className="bg-white p-8 rounded-3xl border border-ink/5 shadow-sm whitespace-pre-wrap leading-relaxed text-ink/80">
-                {analysis}
+              <div className="bg-white p-8 rounded-3xl border border-ink/5 shadow-sm leading-relaxed text-ink/80 markdown-body">
+                <ReactMarkdown>{analysis}</ReactMarkdown>
               </div>
             </div>
           </motion.div>

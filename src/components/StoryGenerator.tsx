@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, Sparkles, RefreshCw, Languages, Loader2 } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import deepseekClient from '../services/deepseek';
 import { useLanguage } from '../contexts/LanguageContext';
+import ReactMarkdown from 'react-markdown';
 
 export default function StoryGenerator() {
   const { showPinyin, t } = useLanguage();
@@ -12,14 +13,15 @@ export default function StoryGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [isExplaining, setIsExplaining] = useState(false);
   const [explanation, setExplanation] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const generateStory = async () => {
     if (!vocab.trim()) return;
     setIsLoading(true);
     setExplanation(null);
+    setError(null);
     
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
       const prompt = `Create a short, engaging story in Chinese (Simplified) for an HSK 1-2 learner. 
       MUST use these vocabulary words naturally: ${vocab}
       Theme: ${theme || 'daily life'}
@@ -27,17 +29,19 @@ export default function StoryGenerator() {
       Format the response as a JSON object with keys: "chinese", "pinyin", "english". 
       The "chinese" should be the story in characters, "pinyin" the pinyin for the whole story, and "english" the translation.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
+      const completion = await deepseekClient.chat.completions.create({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' }
       });
 
-      const text = response.text || '';
+      const text = completion.choices[0].message.content || '';
       const jsonStr = text.match(/\{[\s\S]*\}/)?.[0] || text;
       const data = JSON.parse(jsonStr);
       setStory(data);
-    } catch (error) {
-      console.error('Story generation error', error);
+    } catch (err: any) {
+      console.error('Story generation error', err);
+      setError(err.message || 'Failed to generate story. Please check your API key or try again.');
     } finally {
       setIsLoading(false);
     }
@@ -46,21 +50,22 @@ export default function StoryGenerator() {
   const explainGrammar = async () => {
     if (!story) return;
     setIsExplaining(true);
+    setError(null);
     
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
       const prompt = `Explain 2-3 simple grammar points from this Chinese story for an HSK 1-2 learner. 
       Story: ${story.chinese}
       Keep it very simple and encouraging. Use bullet points.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
+      const completion = await deepseekClient.chat.completions.create({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
       });
 
-      setExplanation(response.text || '');
-    } catch (error) {
-      console.error('Grammar explanation error', error);
+      setExplanation(completion.choices[0].message.content || '');
+    } catch (err: any) {
+      console.error('Grammar explanation error', err);
+      setError(err.message || 'Failed to explain grammar. Please check your API key or try again.');
     } finally {
       setIsExplaining(false);
     }
@@ -109,6 +114,11 @@ export default function StoryGenerator() {
               {isLoading ? <Loader2 className="animate-spin" /> : <Sparkles size={20} />}
               Generate Story
             </button>
+            {error && (
+              <div className="p-4 bg-cinnabar/10 text-cinnabar rounded-xl border border-cinnabar/20 text-sm font-medium">
+                {error}
+              </div>
+            )}
           </div>
         </div>
 
@@ -171,8 +181,8 @@ export default function StoryGenerator() {
                     <Sparkles size={20} />
                     Grammar Breakdown
                   </h3>
-                  <div className="prose prose-ink max-w-none text-ink/70 whitespace-pre-wrap leading-relaxed">
-                    {explanation}
+                  <div className="prose prose-ink max-w-none text-ink/70 leading-relaxed markdown-body">
+                    <ReactMarkdown>{explanation}</ReactMarkdown>
                   </div>
                 </motion.div>
               )}

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mic, MicOff, Volume2, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
-import DeepSeek from '../services/deepseek';
+import deepseekClient from '../services/deepseek';
 
 // Speech Recognition types
 interface SpeechRecognitionEvent extends Event {
@@ -104,10 +104,6 @@ export default function AISpeakingPartner() {
     setTranscript('');
 
     try {
-      const deepseek = new DeepSeek({ 
-        apiKey: (import.meta as any).env?.VITE_DEEPSEEK_API_KEY || 'sk-fake-key-for-demo' 
-      });
-
       const chatMessages = [
         { 
           role: 'system' as const, 
@@ -120,7 +116,7 @@ export default function AISpeakingPartner() {
         { role: 'user' as const, content: text }
       ];
 
-      const completion = await deepseek.chat.completions.create({
+      const completion = await deepseekClient.chat.completions.create({
         model: 'deepseek-reasoner', // DeepSeek R1 model name
         messages: chatMessages,
         temperature: 0.7,
@@ -140,9 +136,11 @@ export default function AISpeakingPartner() {
       
       setMessages(prev => [...prev, aiMsg]);
       speak(cleanText);
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI error', error);
+      setErrorStatus(error.message || 'Failed to connect to AI. Please check your API key.');
       setMessages(prev => [...prev, { role: 'ai', text: '对不起，我现在有点累了。请稍后再试。', pinyin: 'Duìbùqǐ, wǒ xiànzài yǒudiǎn lèile. Qǐng shāohòu zài shì.' }]);
+      setTimeout(() => setErrorStatus(null), 5000);
     } finally {
       setIsLoading(false);
     }

@@ -1,66 +1,11 @@
-/**
- * DeepSeek AI SDK Wrapper (Mock for demonstration)
- * This service mimics the DeepSeek API structure for the AI Speaking Partner.
- */
+import OpenAI from 'openai';
 
-interface DeepSeekMessage {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
+// Initialize the DeepSeek client using the OpenAI SDK
+// Note: In a production app, this should be done on a backend server to protect the API key.
+const deepseekClient = new OpenAI({
+  baseURL: 'https://api.deepseek.com',
+  apiKey: import.meta.env.VITE_DEEPSEEK_API_KEY || 'sk-459b6ee92e4342578507638ca9cd8884',
+  dangerouslyAllowBrowser: true // Required for client-side usage in this demo
+});
 
-interface DeepSeekConfig {
-  apiKey: string;
-  baseURL?: string;
-}
-
-class DeepSeek {
-  private apiKey: string;
-  private baseURL: string;
-
-  constructor(config: DeepSeekConfig) {
-    this.apiKey = config.apiKey;
-    this.baseURL = config.baseURL || 'https://api.deepseek.com/v1';
-  }
-
-  chat = {
-    completions: {
-      create: async (params: {
-        model: string;
-        messages: DeepSeekMessage[];
-        temperature?: number;
-      }) => {
-        console.log(`[DeepSeek API] Calling ${params.model} at ${this.baseURL}`);
-        
-
-        
-        try {
-         
-          const { GoogleGenAI } = await import('@google/genai') as any;
-          const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY || '');
-          const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-
-          const prompt = params.messages.map(m => `${m.role}: ${m.content}`).join('\n');
-          const result = await model.generateContent(prompt);
-          const response = await result.response;
-          const text = response.text();
-
-          return {
-            choices: [
-              {
-                message: {
-                  role: 'assistant',
-                  content: text
-                }
-              }
-            ]
-          };
-        } catch (error) {
-          console.error('DeepSeek API Error:', error);
-          throw new Error('Failed to connect to DeepSeek R1');
-        }
-      }
-    }
-  };
-}
-
-export default DeepSeek;
+export default deepseekClient;

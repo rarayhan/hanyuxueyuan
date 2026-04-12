@@ -1,17 +1,17 @@
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+import deepseekClient from "./deepseek";
 
 export async function getDailyQuote() {
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: "Give me an inspiring quote about learning or perseverance, preferably from a Chinese philosopher. Provide it in Chinese characters, Pinyin, and English translation. Format as JSON: { \"chinese\": \"...\", \"pinyin\": \"...\", \"english\": \"...\" }",
-      config: {
-        responseMimeType: "application/json",
-      }
+    const completion = await deepseekClient.chat.completions.create({
+      model: "deepseek-chat",
+      messages: [{ 
+        role: "user", 
+        content: "Give me an inspiring quote about learning or perseverance, preferably from a Chinese philosopher. Provide it in Chinese characters, Pinyin, and English translation. Format as JSON: { \"chinese\": \"...\", \"pinyin\": \"...\", \"english\": \"...\" }" 
+      }],
+      response_format: { type: "json_object" }
     });
-    return JSON.parse(response.text);
+    
+    return JSON.parse(completion.choices[0].message.content || '{}');
   } catch (error) {
     console.error("Error fetching quote:", error);
     return {

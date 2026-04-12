@@ -1,39 +1,35 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from '../lib/utils';
-import { Eraser, RotateCcw, Play, Eye } from 'lucide-react';
+import { RotateCcw, Play, Eye, CheckCircle2, Save } from 'lucide-react';
 import HanziWriter from 'hanzi-writer';
+import confetti from 'canvas-confetti';
+import { motion, AnimatePresence } from 'motion/react';
+import { OFFLINE_HANZI_DATA } from '../data/offline_hanzi';
 
 interface WritingCanvasProps {
   character: string;
   className?: string;
 }
 
+interface SavedAttempt {
+  char: string;
+  date: Date;
+  mistakes: number;
+}
+
 export default function WritingCanvas({ character, className }: WritingCanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const writersRef = useRef<HanziWriter[]>([]);
   const writerContainerRef = useRef<HTMLDivElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
+  
+  const quizWritersRef = useRef<HanziWriter[]>([]);
+  const quizContainerRef = useRef<HTMLDivElement>(null);
+
   const [showGuide, setShowGuide] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [savedAttempts, setSavedAttempts] = useState<SavedAttempt[]>([]);
+  const [currentMistakes, setCurrentMistakes] = useState(0);
 
-  // Drawing Canvas Logic
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext('2d');
-    if (!context) return;
-
-    context.lineCap = 'round';
-    context.lineJoin = 'round';
-    context.strokeStyle = '#1A1A1A';
-    context.lineWidth = 12;
-    setCtx(context);
-
-    drawGrid(context, canvas.width, canvas.height);
-  }, []);
-
-  // HanziWriter Logic
+  // HanziWriter Stroke Order Logic
   useEffect(() => {
     if (!writerContainerRef.current) return;
 
@@ -59,81 +55,110 @@ export default function WritingCanvas({ character, className }: WritingCanvasPro
         drawingColor: '#1A1A1A',
         showOutline: true,
         showCharacter: false,
+        charDataLoader: (char, onComplete, onError) => {
+          if (OFFLINE_HANZI_DATA[char]) {
+            onComplete(OFFLINE_HANZI_DATA[char]);
+          } else {
+            fetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/${char}.json`)
+              .then(res => res.json())
+              .then(onComplete)
+              .catch(onError);
+          }
+        }
       });
       writersRef.current.push(writer);
     });
+  }, [character]);
 
-    // Reset drawing canvas when character changes
-    if (ctx && canvasRef.current) {
-      drawGrid(ctx, canvasRef.current.width, canvasRef.current.height);
-    }
-  }, [character, ctx]);
+  // HanziWriter Quiz Logic
+  useEffect(() => {
+    if (!quizContainerRef.current) return;
 
-  const drawGrid = (context: CanvasRenderingContext2D, width: number, height: number) => {
-    context.clearRect(0, 0, width, height);
-    context.strokeStyle = 'rgba(196, 30, 58, 0.2)'; 
-    context.lineWidth = 1;
-    context.setLineDash([5, 5]);
+    quizContainerRef.current.innerHTML = '';
+    quizWritersRef.current = [];
+    setIsSuccess(false);
+    setCurrentMistakes(0);
+    
+    const chars = character.split('');
+    const charSize = chars.length > 1 ? 150 : 300; // slightly smaller if multiple
+    let completedCount = 0;
+    let totalMistakes = 0;
 
-    context.beginPath();
-    context.moveTo(0, height / 2);
-    context.lineTo(width, height / 2);
-    context.stroke();
+    chars.forEach((char) => {
+      const quizDiv = document.createElement('div');
+      quizDiv.style.display = 'inline-block';
+      quizDiv.style.margin = '4px';
+      quizDiv.style.border = '1px dashed rgba(196, 30, 58, 0.2)';
+      quizDiv.style.borderRadius = '12px';
+      quizDiv.style.cursor = 'crosshair';
+      quizContainerRef.current?.appendChild(quizDiv);
 
-    context.beginPath();
-    context.moveTo(width / 2, 0);
-    context.lineTo(width / 2, height);
-    context.stroke();
+      const quizWriter = HanziWriter.create(quizDiv, char, {
+        width: charSize,
+        height: charSize,
+        showCharacter: false,
+        showOutline: showGuide,
+        showHintAfterMisses: 3,
+        highlightOnComplete: true,
+        padding: 10,
+        strokeColor: '#1A1A1A',
+        drawingColor: '#1A1A1A',
+        drawingWidth: 12,
+        outlineColor: showGuide ? 'rgba(26, 26, 26, 0.1)' : 'rgba(26, 26, 26, 0)',
+        charDataLoader: (char, onComplete, onError) => {
+          if (OFFLINE_HANZI_DATA[char]) {
+            onComplete(OFFLINE_HANZI_DATA[char]);
+          } else {
+            fetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/${char}.json`)
+              .then(res => res.json())
+              .then(onComplete)
+              .catch(onError);
+          }
+        }
+      });
+      
+      quizWriter.quiz({
+        onMistake: () => {
+          totalMistakes++;
+          setCurrentMistakes(totalMistakes);
+        },
+        onComplete: () => {
+          completedCount++;
+          if (completedCount === chars.length) {
+            handleSuccess(totalMistakes);
+          }
+        }
+      });
+      
+      quizWritersRef.current.push(quizWriter);
+    });
+  }, [character, showGuide]);
 
-    context.beginPath();
-    context.moveTo(0, 0);
-    context.lineTo(width, height);
-    context.stroke();
-
-    context.beginPath();
-    context.moveTo(width, 0);
-    context.lineTo(0, height);
-    context.stroke();
-
-    context.setLineDash([]);
-    context.strokeStyle = '#1A1A1A';
-    context.lineWidth = 12;
+  const handleSuccess = (mistakes: number) => {
+    setIsSuccess(true);
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#C41E3A', '#D4AF37', '#2E8B57']
+    });
   };
 
-  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!ctx) return;
-    setIsDrawing(true);
-    const { x, y } = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
+  const saveAttempt = () => {
+    setSavedAttempts(prev => [{
+      char: character,
+      date: new Date(),
+      mistakes: currentMistakes
+    }, ...prev]);
+    resetQuiz();
   };
 
-  const draw = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDrawing || !ctx) return;
-    const { x, y } = getPos(e);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
-
-  const getPos = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    };
-  };
-
-  const clear = () => {
-    if (!ctx || !canvasRef.current) return;
-    drawGrid(ctx, canvasRef.current.width, canvasRef.current.height);
+  const resetQuiz = () => {
+    setIsSuccess(false);
+    setCurrentMistakes(0);
+    quizWritersRef.current.forEach(writer => {
+      writer.quiz(); // restarts the quiz
+    });
   };
 
   const animateStroke = () => {
@@ -147,7 +172,7 @@ export default function WritingCanvas({ character, className }: WritingCanvasPro
 
   return (
     <div className={cn("flex flex-col items-center gap-8", className)}>
-      <div className="flex gap-8 items-start">
+      <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Stroke Order Guide */}
         <div className="flex flex-col items-center gap-4">
           <div className="text-xs font-bold uppercase tracking-widest text-ink/40">Stroke Order</div>
@@ -163,37 +188,55 @@ export default function WritingCanvas({ character, className }: WritingCanvasPro
           </button>
         </div>
 
-        {/* Practice Canvas */}
+        {/* Practice Area (Quiz Mode) */}
         <div className="flex flex-col items-center gap-4">
           <div className="text-xs font-bold uppercase tracking-widest text-ink/40">Practice Area</div>
-          <div className="relative ink-glass p-4 rounded-xl bg-white">
-            <div className={cn(
-              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl text-ink/5 font-serif pointer-events-none select-none transition-opacity",
-              showGuide ? "opacity-100" : "opacity-0"
-            )}>
-              {character}
-            </div>
-            <canvas
-              ref={canvasRef}
-              width={300}
-              height={300}
-              className="cursor-crosshair touch-none relative z-10"
-              onMouseDown={startDrawing}
-              onMouseMove={draw}
-              onMouseUp={stopDrawing}
-              onMouseLeave={stopDrawing}
-              onTouchStart={startDrawing}
-              onTouchMove={draw}
-              onTouchEnd={stopDrawing}
-            />
+          <div className="relative ink-glass p-4 rounded-xl bg-white min-h-[320px] flex items-center justify-center">
+            
+            <AnimatePresence>
+              {isSuccess && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
+                  className="absolute inset-0 z-20 bg-white/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center gap-4"
+                >
+                  <div className="w-20 h-20 bg-jade text-white rounded-full flex items-center justify-center shadow-lg shadow-jade/30">
+                    <CheckCircle2 size={40} />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-2xl font-serif font-bold text-ink">Perfect!</h3>
+                    <p className="text-ink/60 font-medium">Mistakes: {currentMistakes}</p>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={resetQuiz}
+                      className="px-4 py-2 bg-white border border-ink/10 rounded-lg hover:bg-parchment transition-colors text-sm font-bold text-ink"
+                    >
+                      Try Again
+                    </button>
+                    <button
+                      onClick={saveAttempt}
+                      className="flex items-center gap-2 px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold/90 transition-colors text-sm font-bold shadow-lg shadow-gold/20"
+                    >
+                      <Save size={16} />
+                      Save Attempt
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div ref={quizContainerRef} className="flex flex-wrap justify-center items-center gap-2 relative z-10" />
           </div>
+          
           <div className="flex gap-2">
             <button
-              onClick={clear}
+              onClick={resetQuiz}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-ink/10 rounded-lg hover:bg-parchment transition-colors text-sm font-medium"
             >
               <RotateCcw size={16} />
-              Clear Canvas
+              Reset
             </button>
             <button
               onClick={() => setShowGuide(!showGuide)}
@@ -208,6 +251,32 @@ export default function WritingCanvas({ character, className }: WritingCanvasPro
           </div>
         </div>
       </div>
+
+      {/* Saved Attempts */}
+      {savedAttempts.length > 0 && (
+        <div className="w-full max-w-2xl mt-8 pt-8 border-t border-ink/10">
+          <h3 className="text-lg font-serif font-bold mb-4 flex items-center gap-2">
+            <Save size={20} className="text-gold" />
+            Saved Attempts
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {savedAttempts.map((attempt, idx) => (
+              <div key={idx} className="bg-silk p-4 rounded-xl border border-ink/5 flex flex-col items-center gap-2">
+                <span className="text-4xl font-chinese text-ink">{attempt.char}</span>
+                <div className="text-center">
+                  <div className="text-xs font-bold text-ink/40">{attempt.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div className={cn(
+                    "text-xs font-bold mt-1",
+                    attempt.mistakes === 0 ? "text-jade" : "text-cinnabar"
+                  )}>
+                    {attempt.mistakes === 0 ? 'Flawless' : `${attempt.mistakes} mistakes`}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
