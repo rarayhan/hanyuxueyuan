@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mic, MicOff, Volume2, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
-import deepseekClient from '../services/deepseek';
+import { GoogleGenAI } from '@google/genai';
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Speech Recognition types
 interface SpeechRecognitionEvent extends Event {
@@ -104,25 +106,23 @@ export default function AISpeakingPartner() {
     setTranscript('');
 
     try {
-        const chatMessages = [
-        { 
-          role: 'system' as const, 
-          content: 'You are a friendly Chinese speaking partner for an HSK 1-2 level student. Keep your responses short, simple, and encouraging. Always provide the Chinese characters followed by Pinyin in parentheses.' 
-        },
-        ...messages.map(m => ({
-          role: m.role === 'ai' ? 'assistant' as const : 'user' as const,
-          content: m.text
-        })),
-        { role: 'user' as const, content: text }
-      ];
+      const systemInstruction = 'You are a friendly Chinese speaking partner for an HSK 1-2 level student. Keep your responses short, simple, and encouraging. Always provide the Chinese characters followed by Pinyin in parentheses.';
+      
+      const chatMessages = messages.map(m => ({
+        role: m.role === 'ai' ? 'model' : 'user',
+        parts: [{ text: m.text }]
+      }));
 
-      const completion = await deepseekClient.chat.completions.create({
-        model: 'deepseek-reasoner', // DeepSeek R1 model name
-        messages: chatMessages,
-        temperature: 0.7,
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: [...chatMessages, { role: 'user', parts: [{ text }] }],
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        }
       });
 
-      const aiText = completion.choices[0].message.content || '';
+      const aiText = response.text || '';
 
       // Basic parsing for pinyin if provided in parentheses
       const pinyinMatch = aiText.match(/\(([^)]+)\)/);
@@ -167,7 +167,7 @@ export default function AISpeakingPartner() {
               <circle cx="7" cy="14" r="0.6" fill="white" stroke="none" />
             </svg>
           </div>
-          <span>Powered by <span className="text-blue-400">DeepSeek R1</span></span>
+          <span>Powered by <span className="text-blue-400">Gemini 3.1 Pro</span></span>
         </div>
       </div>
 

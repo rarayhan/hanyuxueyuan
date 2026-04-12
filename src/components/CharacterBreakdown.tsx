@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { PenTool, Search, Sparkles, Loader2, Info } from 'lucide-react';
-import deepseekClient from '../services/deepseek';
+import { GoogleGenAI } from '@google/genai';
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 import WritingCanvas from './WritingCanvas';
 import { OFFLINE_ANALYSIS_DATA } from '../data/offline_analysis';
 import ReactMarkdown from 'react-markdown';
@@ -37,12 +39,12 @@ export default function CharacterBreakdown() {
       5. 2-3 common example words.
       Keep it educational, clear, and encouraging. Use Markdown formatting.`;
 
-      const completion = await deepseekClient.chat.completions.create({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: prompt,
       });
 
-      setAnalysis(completion.choices[0].message.content || '');
+      setAnalysis(response.text || '');
     } catch (err: any) {
       console.error('Character analysis error', err);
       setError(err.message || 'Failed to connect to the AI. Please check your API key or try an offline character.');

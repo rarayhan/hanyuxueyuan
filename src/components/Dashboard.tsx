@@ -85,18 +85,29 @@ export default function Dashboard({
           
           {!selectedSinologyLesson && (
             <div className="flex bg-white p-1 rounded-2xl border border-ink/10 shadow-sm overflow-x-auto">
-              {SINOLOGY_MODULES.map((module) => (
-                <button
-                  key={module.id}
-                  onClick={() => setSelectedModuleId(module.id)}
-                  className={cn(
-                    "px-6 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
-                    selectedModuleId === module.id ? "bg-cinnabar text-white shadow-lg" : "text-ink/40 hover:text-ink"
-                  )}
-                >
-                  {module.title.split(':')[0]}
-                </button>
-              ))}
+              {SINOLOGY_MODULES.map((module) => {
+                const getModuleLabel = (id: string) => {
+                  switch (id) {
+                    case 'basic': return '基本的';
+                    case 'intermediate': return '中间的';
+                    case 'expert': return '专家';
+                    default: return module.title.split(':')[0];
+                  }
+                };
+                
+                return (
+                  <button
+                    key={module.id}
+                    onClick={() => setSelectedModuleId(module.id)}
+                    className={cn(
+                      "px-6 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
+                      selectedModuleId === module.id ? "bg-cinnabar text-white shadow-lg" : "text-ink/40 hover:text-ink"
+                    )}
+                  >
+                    {getModuleLabel(module.id)}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

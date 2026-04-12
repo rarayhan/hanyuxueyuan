@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, Sparkles, RefreshCw, Languages, Loader2 } from 'lucide-react';
-import deepseekClient from '../services/deepseek';
+import { GoogleGenAI, Type } from '@google/genai';
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 import { useLanguage } from '../contexts/LanguageContext';
 import ReactMarkdown from 'react-markdown';
 
@@ -35,13 +37,24 @@ export default function StoryGenerator() {
       Format the response as a JSON object with keys: "chinese", "pinyin", "english". 
       The "chinese" should be the story in characters, "pinyin" the pinyin for the whole story, and "english" the translation.`;
 
-      const completion = await deepseekClient.chat.completions.create({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        response_format: { type: 'json_object' }
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              chinese: { type: Type.STRING },
+              pinyin: { type: Type.STRING },
+              english: { type: Type.STRING },
+            },
+            required: ['chinese', 'pinyin', 'english'],
+          }
+        }
       });
 
-      const text = completion.choices[0].message.content || '';
+      const text = response.text || '';
       const jsonStr = text.match(/\{[\s\S]*\}/)?.[0] || text;
       const data = JSON.parse(jsonStr);
       setStory(data);
@@ -63,12 +76,12 @@ export default function StoryGenerator() {
       Story: ${story.chinese}
       Keep it very simple and encouraging. Use bullet points.`;
 
-      const completion = await deepseekClient.chat.completions.create({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: prompt,
       });
 
-      setExplanation(completion.choices[0].message.content || '');
+      setExplanation(response.text || '');
     } catch (err: any) {
       console.error('Grammar explanation error', err);
       setError(err.message || 'Failed to explain grammar. Please check your API key or try again.');
