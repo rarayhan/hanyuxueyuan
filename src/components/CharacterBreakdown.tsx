@@ -27,7 +27,7 @@ export default function CharacterBreakdown() {
       return;
     }
     
- try {
+    try {
       const systemInstruction = `You are an expert Chinese language tutor. Analyze the Chinese character(s) provided by the user for an HSK 1-2 learner.
       Include:
       1. Meaning & Pinyin
@@ -57,7 +57,7 @@ export default function CharacterBreakdown() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }; // <--- THIS WAS MISSING!
 
   const quickChars = [
     { char: '爱', label: 'Love' },

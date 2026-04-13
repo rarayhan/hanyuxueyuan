@@ -22,7 +22,7 @@ export default function StoryGenerator() {
     setExplanation(null);
     setError(null);
     
- try {
+    try {
       const prompt = `Create a short, engaging reading comprehension story in Chinese (Simplified) for a Sinology Architecture curriculum.
       DIFFICULTY LEVEL: ${difficulty}
       MANDATORY THEME: "Achievements of Ancient Chinese Architecture" (中国古代建筑成就).
@@ -55,14 +55,14 @@ export default function StoryGenerator() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }; // <--- THIS WAS MISSING!
 
   const explainGrammar = async () => {
     if (!story) return;
     setIsExplaining(true);
     setError(null);
     
-     try {
+    try {
       const prompt = `Explain 2-3 simple grammar points from this Chinese story for an HSK 1-2 learner. 
       Story: ${story.chinese}
       Keep it very simple and encouraging. Use bullet points.`;
@@ -83,6 +83,7 @@ export default function StoryGenerator() {
     } finally {
       setIsExplaining(false);
     }
+  }; // <--- THIS WAS ALSO MISSING!
 
   return (
     <div className="space-y-8">
