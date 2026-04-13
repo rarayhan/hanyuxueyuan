@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mic, MicOff, Volume2, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getGeminiClient } from '../services/gemini';
+import { GoogleGenAI } from '@google/genai';
 
 // Speech Recognition types
 interface SpeechRecognitionEvent extends Event {
@@ -111,7 +111,7 @@ export default function AISpeakingPartner() {
         parts: [{ text: m.text }]
       }));
 
-      const ai = getGeminiClient();
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
       const response = await ai.models.generateContent({
         model: 'gemini-3.1-pro-preview',
         contents: [...chatMessages, { role: 'user', parts: [{ text }] }],

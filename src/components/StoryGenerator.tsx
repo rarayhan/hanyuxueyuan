@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, Sparkles, RefreshCw, Languages, Loader2 } from 'lucide-react';
-import { Type } from '@google/genai';
-import { getGeminiClient } from '../services/gemini';
+import { GoogleGenAI, Type } from '@google/genai';
 import { useLanguage } from '../contexts/LanguageContext';
 import ReactMarkdown from 'react-markdown';
 
@@ -36,7 +35,7 @@ export default function StoryGenerator() {
       Format the response as a JSON object with keys: "chinese", "pinyin", "english". 
       The "chinese" should be the story in characters, "pinyin" the pinyin for the whole story, and "english" the translation.`;
 
-      const ai = getGeminiClient();
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
       const response = await ai.models.generateContent({
         model: 'gemini-3.1-pro-preview',
         contents: prompt,
@@ -76,7 +75,7 @@ export default function StoryGenerator() {
       Story: ${story.chinese}
       Keep it very simple and encouraging. Use bullet points.`;
 
-      const ai = getGeminiClient();
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
       const response = await ai.models.generateContent({
         model: 'gemini-3.1-pro-preview',
         contents: prompt,
