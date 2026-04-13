@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mic, MicOff, Volume2, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
-import { GoogleGenAI } from '@google/genai';
+ 
+import deekseekClient from '../services/deepseek';
 
 // Speech Recognition types
 interface SpeechRecognitionEvent extends Event {
@@ -95,7 +96,7 @@ export default function AISpeakingPartner() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const handleSend = async (text: string) => {
+ const handleSend = async (text: string) => {
     if (!text.trim()) return;
     
     const userMsg = { role: 'user' as const, text };
@@ -106,22 +107,24 @@ export default function AISpeakingPartner() {
     try {
       const systemInstruction = 'You are a friendly Chinese speaking partner for an HSK 1-2 level student. Keep your responses short, simple, and encouraging. Always provide the Chinese characters followed by Pinyin in parentheses.';
       
+      // Format messages for DeepSeek/OpenAI
       const chatMessages = messages.map(m => ({
-        role: m.role === 'ai' ? 'model' : 'user',
-        parts: [{ text: m.text }]
+        role: m.role === 'ai' ? 'assistant' : 'user',
+        content: m.text
       }));
 
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
-        contents: [...chatMessages, { role: 'user', parts: [{ text }] }],
-        config: {
-          systemInstruction,
-          temperature: 0.7,
-        }
+      // Call DeepSeek via the client
+      const response = await deepseekClient.chat.completions.create({
+        model: 'deepseek-chat', 
+        messages: [
+          { role: 'system', content: systemInstruction },
+          ...chatMessages,
+          { role: 'user', content: text }
+        ] as any,
+        temperature: 0.7,
       });
 
-      const aiText = response.text || '';
+      const aiText = response.choices[0]?.message?.content || '';
 
       // Basic parsing for pinyin if provided in parentheses
       const pinyinMatch = aiText.match(/\(([^)]+)\)/);
@@ -137,7 +140,7 @@ export default function AISpeakingPartner() {
       speak(cleanText);
     } catch (error: any) {
       console.error('AI error', error);
-      setErrorStatus(error.message || 'Failed to connect to AI. Please check your API key.');
+      setErrorStatus(error.message || 'Failed to connect to DeepSeek.');
       setMessages(prev => [...prev, { role: 'ai', text: '对不起，我现在有点累了。请稍后再试。', pinyin: 'Duìbùqǐ, wǒ xiànzài yǒudiǎn lèile. Qǐng shāohòu zài shì.' }]);
       setTimeout(() => setErrorStatus(null), 5000);
     } finally {
