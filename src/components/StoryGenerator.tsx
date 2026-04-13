@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, Sparkles, RefreshCw, Languages, Loader2 } from 'lucide-react';
-import { GoogleGenAI, Type } from '@google/genai';
+import deepseekClient from '../services/deepseek';
 import { useLanguage } from '../contexts/LanguageContext';
 import ReactMarkdown from 'react-markdown';
 
@@ -22,7 +22,7 @@ export default function StoryGenerator() {
     setExplanation(null);
     setError(null);
     
-    try {
+ try {
       const prompt = `Create a short, engaging reading comprehension story in Chinese (Simplified) for a Sinology Architecture curriculum.
       DIFFICULTY LEVEL: ${difficulty}
       MANDATORY THEME: "Achievements of Ancient Chinese Architecture" (中国古代建筑成就).
@@ -32,30 +32,22 @@ export default function StoryGenerator() {
       MUST use these vocabulary words naturally: ${vocab}
       User requested sub-theme: ${theme || 'ancient architecture'}
       Length: 5-8 sentences.
-      Format the response as a JSON object with keys: "chinese", "pinyin", "english". 
+      
+      Format the response EXACTLY as a JSON object with keys: "chinese", "pinyin", "english". 
       The "chinese" should be the story in characters, "pinyin" the pinyin for the whole story, and "english" the translation.`;
 
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              chinese: { type: Type.STRING },
-              pinyin: { type: Type.STRING },
-              english: { type: Type.STRING },
-            },
-            required: ['chinese', 'pinyin', 'english'],
-          }
-        }
+      const response = await deepseekClient.chat.completions.create({
+        model: 'deepseek-chat',
+        response_format: { type: 'json_object' }, // Forces DeepSeek to output pure JSON
+        messages: [
+          { role: 'system', content: 'You are an expert Chinese language teacher. You must output valid JSON only.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7,
       });
 
-      const text = response.text || '';
-      const jsonStr = text.match(/\{[\s\S]*\}/)?.[0] || text;
-      const data = JSON.parse(jsonStr);
+      const text = response.choices[0]?.message?.content || '{}';
+      const data = JSON.parse(text);
       setStory(data);
     } catch (err: any) {
       console.error('Story generation error', err);
@@ -63,32 +55,33 @@ export default function StoryGenerator() {
     } finally {
       setIsLoading(false);
     }
-  };
 
   const explainGrammar = async () => {
     if (!story) return;
     setIsExplaining(true);
     setError(null);
     
-    try {
+     try {
       const prompt = `Explain 2-3 simple grammar points from this Chinese story for an HSK 1-2 learner. 
       Story: ${story.chinese}
       Keep it very simple and encouraging. Use bullet points.`;
 
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
-        contents: prompt,
+      const response = await deepseekClient.chat.completions.create({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: 'You are a helpful Chinese language tutor.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7,
       });
 
-      setExplanation(response.text || '');
+      setExplanation(response.choices[0]?.message?.content || '');
     } catch (err: any) {
       console.error('Grammar explanation error', err);
       setError(err.message || 'Failed to explain grammar. Please check your API key or try again.');
     } finally {
       setIsExplaining(false);
     }
-  };
 
   return (
     <div className="space-y-8">

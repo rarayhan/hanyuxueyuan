@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { PenTool, Search, Sparkles, Loader2, Info } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import deepseekClient from '../services/deepseek';
 import WritingCanvas from './WritingCanvas';
 import { OFFLINE_ANALYSIS_DATA } from '../data/offline_analysis';
 import ReactMarkdown from 'react-markdown';
@@ -27,8 +27,8 @@ export default function CharacterBreakdown() {
       return;
     }
     
-    try {
-      const prompt = `Analyze the Chinese character(s) "${target}" for an HSK 1-2 learner.
+ try {
+      const systemInstruction = `You are an expert Chinese language tutor. Analyze the Chinese character(s) provided by the user for an HSK 1-2 learner.
       Include:
       1. Meaning & Pinyin
       2. Radical Breakdown (explain the components)
@@ -37,13 +37,19 @@ export default function CharacterBreakdown() {
       5. 2-3 common example words.
       Keep it educational, clear, and encouraging. Use Markdown formatting.`;
 
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
-        contents: prompt,
+      // Use DeepSeek instead of Gemini
+      const response = await deepseekClient.chat.completions.create({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemInstruction },
+          { role: 'user', content: target }
+        ],
+        temperature: 0.7,
       });
 
-      setAnalysis(response.text || '');
+      // Extract the text from DeepSeek's response format
+      setAnalysis(response.choices[0]?.message?.content || '');
+      
     } catch (err: any) {
       console.error('Character analysis error', err);
       setError(err.message || 'Failed to connect to the AI. Please check your API key or try an offline character.');
@@ -51,7 +57,6 @@ export default function CharacterBreakdown() {
     } finally {
       setIsLoading(false);
     }
-  };
 
   const quickChars = [
     { char: '爱', label: 'Love' },

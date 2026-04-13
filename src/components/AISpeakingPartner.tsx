@@ -4,7 +4,7 @@ import { Mic, MicOff, Volume2, Send, Bot, User, Loader2, Sparkles } from 'lucide
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
  
-import deekseekClient from '../services/deepseek';
+import deepseekClient from '../services/deepseek';
 
 // Speech Recognition types
 interface SpeechRecognitionEvent extends Event {
