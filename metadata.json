@@ -1,5 +1,5 @@
 {
-  "name": "Remix: The Scholar\u0027s Path",
+  "name": "汉语学院",
   "description": "A gamified HSK learning platform for HSK 1 to 4 with interactive games, AI speaking partner, and a unified progress system.",
   "requestFramePermissions": [
     "microphone"

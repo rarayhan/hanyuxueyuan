@@ -169,7 +169,7 @@ export default function AISpeakingPartner() {
               <circle cx="7" cy="14" r="0.6" fill="white" stroke="none" />
             </svg>
           </div>
-          <span>Powered by <span className="text-blue-400">Gemini 3.1 Pro</span></span>
+          <span>Powered by <span className="text-blue-400">DeepSeek</span></span>
         </div>
       </div>
 
