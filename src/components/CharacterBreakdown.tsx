@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { PenTool, Search, Sparkles, Loader2, Info } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { getGeminiClient } from '../services/gemini';
 import WritingCanvas from './WritingCanvas';
 import { OFFLINE_ANALYSIS_DATA } from '../data/offline_analysis';
 import ReactMarkdown from 'react-markdown';
@@ -39,6 +37,7 @@ export default function CharacterBreakdown() {
       5. 2-3 common example words.
       Keep it educational, clear, and encouraging. Use Markdown formatting.`;
 
+      const ai = getGeminiClient();
       const response = await ai.models.generateContent({
         model: 'gemini-3.1-pro-preview',
         contents: prompt,
