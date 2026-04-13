@@ -57,6 +57,7 @@ export default function CharacterBreakdown() {
     } finally {
       setIsLoading(false);
     }
+  };
 
   const quickChars = [
     { char: '爱', label: 'Love' },

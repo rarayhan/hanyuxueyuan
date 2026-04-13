@@ -55,6 +55,7 @@ export default function StoryGenerator() {
     } finally {
       setIsLoading(false);
     }
+  };
 
   const explainGrammar = async () => {
     if (!story) return;
